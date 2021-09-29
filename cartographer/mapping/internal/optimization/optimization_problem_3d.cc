@@ -351,7 +351,7 @@ void OptimizationProblem3D::Solve(
                            &problem, options_.huber_scale());
   // Add constraints based on IMU observations of angular velocities and
   // linear acceleration.
-  if (!options_.fix_z_in_3d()) {
+  if (!options_.fix_z_in_3d() && false) {
     for (auto node_it = node_data_.begin(); node_it != node_data_.end();) {
       const int trajectory_id = node_it->id.trajectory_id;
       const auto trajectory_end = node_data_.EndOfTrajectory(trajectory_id);

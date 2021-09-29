@@ -28,6 +28,8 @@
 #include "cartographer/transform/timestamped_transform.h"
 #include "glog/logging.h"
 
+#include "cartographer/mapping/internal/no_imu_pose_extrapolator.h"
+
 namespace cartographer {
 namespace mapping {
 
@@ -109,6 +111,7 @@ std::unique_ptr<transform::Rigid3d> LocalTrajectoryBuilder3D::ScanMatch(
 }
 
 void LocalTrajectoryBuilder3D::AddImuData(const sensor::ImuData& imu_data) {
+  return;
   if (extrapolator_ != nullptr) {
     extrapolator_->AddImuData(imu_data);
     return;
@@ -144,10 +147,10 @@ LocalTrajectoryBuilder3D::AddRangeData(
   }
 
   if (extrapolator_ == nullptr) {
-    // Until we've initialized the extrapolator with our first IMU message, we
-    // cannot compute the orientation of the rangefinder.
-    LOG(INFO) << "IMU not yet initialized.";
-    return nullptr;
+    extrapolator_ = absl::make_unique<NoImuPoseExtrapolator>(common::FromSeconds(options_.pose_extrapolator_options().constant_velocity().pose_queue_duration()));
+    extrapolator_->AddPose(
+      synchronized_data.time,
+      transform::Rigid3d());
   }
 
   CHECK(!synchronized_data.ranges.empty());
